@@ -1,0 +1,28 @@
+﻿EXEC sp_configure 'show advanced options', 1;
+GO
+RECONFIGURE;
+GO
+EXEC sp_configure 'xp_cmdshell', 1 
+GO 
+RECONFIGURE 
+GO 
+
+
+exec xp_cmdshell 'netsh advfirewall firewall add rule name="axel-out" dir=out program="D:\tool\Axel2.4\axel.exe"  action=allow'
+go
+exec master.dbo.xp_cmdshell 'D:\tool\Axel2.4\axel.exe -s 5242880 -n 20 -o d:\temp\ http://vip3143.edb08.com.cn/edb_a67532.rar'
+go
+exec master.dbo.xp_cmdshell 'md D:\webhome\saas_alisoft\usrdbs\bak_edb_a67532'
+    go
+
+RESTORE DATABASE [bak_edb_a67532] FROM  DISK = N'D:\temp\edb_a67532.rar' WITH  FILE = 1, 
+ MOVE N'AGT_Trad' TO N'D:\webhome\saas_alisoft\usrdbs\bak_edb_a67532\AGT_Trad.mdf',  
+ MOVE N'AGT_Trad_log' TO N'D:\webhome\saas_alisoft\usrdbs\bak_edb_a67532\AGT_Trad_log.ldf',  NOUNLOAD,  STATS = 1
+GO
+
+exec xp_cmdshell 'netsh advfirewall firewall delete rule name="axel-out"'
+
+
+
+--源
+backup database edb_a67532 to disk = 'D:\webhome\saas_alisoft\backup\wfp_program\edb_a67532.rar' with compression
